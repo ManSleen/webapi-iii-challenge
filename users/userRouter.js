@@ -64,26 +64,21 @@ router.delete("/:id", validateUserId, (req, res) => {
   Users.getById(userId)
     .then(user => {
       foundUser = user;
-      Users.remove(userId)
-        .then(user => {
-          if (user) {
-            res.status(200).json(foundUser);
-          } else {
-            res.status(404).json({
-              message: "The user with the specified ID does not exist"
-            });
-          }
-        })
-        .catch(error => {
-          res
-            .status(500)
-            .json({ message: "Could not delete a user with that ID" });
-        });
     })
     .catch(error => {
       res
         .status(500)
         .json({ message: "There was an error finding that user by ID" });
+    });
+
+  Users.remove(userId)
+    .then(user => {
+      if (user) {
+        res.status(200).json(foundUser);
+      }
+    })
+    .catch(error => {
+      res.status(500).json({ message: "Could not delete a user with that ID" });
     });
 });
 
