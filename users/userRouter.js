@@ -104,14 +104,14 @@ function validateUserId(req, res, next) {
     .then(user => {
       if (user) {
         req.user = user;
+        next();
       } else {
         res.status(400).json({ message: "Invalid User ID" });
       }
     })
     .catch(error => {
-      console.log(error);
+      res.status(500).json({ message: "Not working meng" });
     });
-  next();
 }
 
 function validateUser(req, res, next) {

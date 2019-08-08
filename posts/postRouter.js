@@ -28,7 +28,7 @@ router.post("/:id/posts", validatePost, (req, res) => {
 });
 
 //GET post by its ID
-router.get("/:id", (req, res) => {
+router.get("/:id", validatePostId, (req, res) => {
   const postId = req.params.id;
   Posts.getById(postId)
     .then(post => {
@@ -40,7 +40,7 @@ router.get("/:id", (req, res) => {
 });
 
 //DELETE post using its ID, return deleted post
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validatePostId, (req, res) => {
   const postId = req.params.id;
   let foundPost;
 
@@ -64,7 +64,7 @@ router.delete("/:id", (req, res) => {
 });
 
 //PUT/UPDATE post using its ID and supplying changes in body
-router.put("/:id", (req, res) => {
+router.put("/:id", validatePostId, validatePost, (req, res) => {
   const postId = req.params.id;
   const changes = req.body;
   Posts.update(postId, changes)
@@ -92,6 +92,20 @@ function validatePost(req, res, next) {
   }
 }
 
-function validatePostId(req, res, next) {}
+function validatePostId(req, res, next) {
+  const postId = req.params.id;
+  Posts.getById(postId)
+    .then(post => {
+      if (post) {
+        req.post = post;
+        next();
+      } else {
+        res.status(400).json({ message: "Invalid Post ID" });
+      }
+    })
+    .catch(error => {
+      res.status(500).json({ message: "Error validating post ID" });
+    });
+}
 
 module.exports = router;
