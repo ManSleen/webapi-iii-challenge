@@ -12,7 +12,7 @@ router.get("/", (req, res) => {
     });
 });
 
-router.post("/:id/posts", (req, res) => {
+router.post("/:id/posts", validatePost, (req, res) => {
   const postInfo = req.body;
   postInfo.user_id = req.params.id;
   console.log(postInfo);
@@ -38,6 +38,22 @@ router.put("/:id", (req, res) => {
 });
 
 // custom middleware
+
+function validatePost(req, res, next) {
+  if (!Object.keys(req.body).length > 0) {
+    res
+      .status(400)
+      .json({ message: "Missing post data, could not add post to db" });
+  } else if (!req.body.hasOwnProperty("text")) {
+    res
+      .status(400)
+      .json({
+        message: "Missing required text field, could not add post to db"
+      });
+  } else {
+    next();
+  }
+}
 
 function validatePostId(req, res, next) {}
 
