@@ -3,7 +3,7 @@ const router = require("express").Router();
 const Users = require("../users/userDb");
 
 //POST/ADD a new user
-router.post("/", (req, res) => {
+router.post("/", validateUser, (req, res) => {
   const userInfo = req.body;
   Users.insert(userInfo)
     .then(user => {
@@ -43,7 +43,7 @@ router.get("/:id", validateUserId, (req, res) => {
 });
 
 //GET a list of posts by a certain user
-router.get("/:id/posts", (req, res) => {
+router.get("/:id/posts", validateUserId, (req, res) => {
   const userId = req.params.id;
   Users.getUserPosts(userId)
     .then(posts => {
@@ -57,7 +57,7 @@ router.get("/:id/posts", (req, res) => {
 });
 
 //DELETE a user using their ID
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateUserId, (req, res) => {
   const userId = req.params.id;
   let foundUser;
 
@@ -88,7 +88,7 @@ router.delete("/:id", (req, res) => {
 });
 
 //PUT / UPDATE a user using their ID
-router.put("/:id", (req, res) => {
+router.put("/:id", validateUserId, (req, res) => {
   const userId = req.params.id;
   const changes = req.body;
 
@@ -119,7 +119,17 @@ function validateUserId(req, res, next) {
   next();
 }
 
-function validateUser(req, res, next) {}
+function validateUser(req, res, next) {
+  if (!Object.keys(req.body).length > 0) {
+    res.status(400).json({ message: "Missing user data, could not add to db" });
+  } else if (!req.body.hasOwnProperty("name")) {
+    res
+      .status(400)
+      .json({ message: "Missing required name field, could not add to db" });
+  } else {
+    next();
+  }
+}
 
 function validatePost(req, res, next) {}
 
